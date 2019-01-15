@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.exercise1.dao.DeptDao">
+
+
+<!-- 	<resultMap type="com.example.exercise1.pojo.Dept" id="sel1">
+	
+		<id column="empId" property="empId"/>
+		<result column="empName" property="empName"/>
+		<result column="empWage" property="empWage"/>
+		<result column="empDate" property="empDate"/>
+		<result column="empBonus" property="empBonus"/>
+		
+		<collection property="list" column="deptId" select="selectEmp"></collection>
+	
+	</resultMap> -->
+
+	<select id="selectAll" resultType="Dept">
+		SELECT * FROM `dept` 
+	</select>
+	
+	
+	<select id="selectEmp" resultType="Emp">
+		SELECT * FROM `emp` WHERE `deptId`=#{deptId}
+	</select>
+
+
+	<delete id="removeEmp">
+		DELETE FROM `emp` WHERE `empId`=#{empId}
+	</delete>
+	
+	
+	<select id="selectEmpCount" resultType="int">
+	
+		SELECT count(*) FROM `emp` WHERE `deptId`=#{deptId}
+	
+	</select>
+	
+</mapper>

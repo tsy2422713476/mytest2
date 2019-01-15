@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>部门列表</title>
+<style type="text/css">
+#div1 {
+	width: 800px;
+	margin: 50px auto;
+	text-align: center;
+}
+
+#div1>table {
+	width: 700px;
+	border: 1px blue solid;
+}
+
+#div1>table>thead>tr {
+	background: #777;
+	font-size: 20px;
+	text-align: center;
+}
+
+#div1>table td {
+	border: 1px red solid;
+}
+</style>
+
+</head>
+<body>
+
+	<div id="div1">
+		<table>
+			<thead>
+				<tr>
+					<td>部门编号</td>
+					<td>部门名称</td>
+					<td>部门地址</td>
+				</tr>
+			</thead>
+
+			<tbody id="tbb">
+
+			</tbody>
+
+
+			</tbody>
+			<table id="taa" hidden>
+				<thead>
+					<tr>
+						<td hidden>员工编号</td>
+						<td>姓名</td>
+						<td>工作</td>
+						<td>工资</td>
+						<td>入职时间</td>
+						<td>奖金</td>
+						<td>操作</td>
+					</tr>
+				</thead>
+
+				<tbody id="tbb2">
+
+				</tbody>
+			</table>
+		</table>
+		
+		<p>
+			<a onclick="pageCheck(this)">上一页</a>
+			<a onclick="pageCheck(this)">下一页</a>
+		</p>
+	</div>
+
+
+</body>
+
+<script type="text/javascript" src="../js/jquery-1.8.3.js"></script>
+<script type="text/javascript">
+
+$.ajaxSetup({
+	timeout:10000
+});
+
+$(document).ajaxError(function(){
+	alert("服务器正忙。。。");
+});
+
+
+$(document).ready(function(){
+	load();
+});
+
+
+var pageNum=0;
+var pages;
+
+function load(){
+
+	$.get("/api/selectAll/"+pageNum,{},function(arryJSON){
+
+		pages=arryJSON;
+		
+		$("#tbb").html("");
+		
+	$.each(arryJSON.list,function(i,obj){
+		
+		
+		var $row=$("<tr><td>"+obj.deptId+"</td><td style='color:blue;text-decoration: underline' id='tdd'>"+obj.deptName+"</td><td>"+obj.deptAddress+"</td></tr>");
+		
+		$("#tbb").append($row);
+	});
+
+	},"JSON");
+}
+
+
+
+
+$(document).on("click","#tdd",function(){
+
+	var dId=$(this).prev("td").text();
+
+//alert(dId);
+$.get("/api/selectCountEmp/"+dId,{},function(data){
+	
+//alert();
+
+if(data=="0"){
+	
+}else{
+	$("#taa").show();
+
+	$("#tbb2").html("");
+
+	
+	$.get("/api/selectEmp/"+dId,{},function(arryJSON){
+		
+		$.each(arryJSON,function(i,obj){
+			
+			var $row=$("<tr><td hidden>"+obj.empId+"</td><td>"+obj.empName+"</td><td>"+obj.empWork+"</td><td>"+obj.empWage+"</td><td>"+obj.empDate+"</td><td>"+obj.empBonus+"</td><td hidden>"+obj.deptId+"</td><td id='del'>删除</td></tr>");
+			
+			$("#tbb2").append($row);
+		});
+		
+	},"JSON"); 
+}
+
+},"text");
+
+
+
+
+
+
+});
+
+
+
+
+
+
+$(document).on("click","#del",function(){
+
+var iii=this;
+
+
+if(confirm("确定删除吗？")){
+	var eId=$(this).parents("tr").find("td:eq(0)").text();
+	var dId=$(this).parents("tr").find("td:eq(6)").text();
+	
+	//alert(eId);
+	
+	
+	
+	
+	$.ajax("/api/deleteEmp/"+eId+"/"+dId,{
+		
+		type:"DELETE",
+		dataType:"json",
+		timeout:6000,
+		success:function(data){
+			
+			if(data.code==200){
+				
+				if(data.count==0){
+					alert('还有【'+data.count+'】位员工！');
+					$("#taa").hide();
+					window.location.reload();
+				}else{
+					alert('还有【'+data.count+'】位员工！');
+					$(iii).parents("tr").remove();
+				}
+				
+			}else{
+				alert("删除失败！");
+				window.location.reload();
+			}
+			
+		}
+		
+	});
+}
+
+})
+
+
+function pageCheck(input){
+	
+	var page=$(input).text();
+	
+	
+	
+	if(page=='上一页'){
+		if(pages.hasPreviousPage){
+			pageNum=pages.prePage;
+		}else{
+			alert('没有上一页了。');
+		}
+	}else if(page=='下一页'){
+		if(pages.hasNextPage){
+			pageNum=pages.nextPage
+		}else{
+			alert('没有下一页了。');
+		}
+	}
+	
+	load();
+	
+}
+
+
+
+</script>
+</html>
