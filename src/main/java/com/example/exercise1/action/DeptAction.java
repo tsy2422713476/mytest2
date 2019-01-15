@@ -67,6 +67,11 @@ public class DeptAction {
 	}
 	
 	
+	public void goTo() {
+		
+	}
+	
+	
 	
 	
 	
